@@ -18,7 +18,7 @@
         </constraints>
         <properties>
           <margin top="2" left="6" bottom="2" right="6"/>
-          <text value="Experience 2"/>
+          <text value="Data Analyst"/>
           <toolTipText value=""/>
         </properties>
       </component>
@@ -40,7 +40,7 @@
         </constraints>
         <properties>
           <margin top="2" left="6" bottom="2" right="6"/>
-          <text value="Experience 1"/>
+          <text value="Software Engineer"/>
         </properties>
       </component>
       <component id="a052" class="javax.swing.JLabel">

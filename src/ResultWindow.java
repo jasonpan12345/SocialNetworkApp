@@ -22,11 +22,22 @@ public class ResultWindow implements ActionListener {
     String your_userid = null;
     String your_password = null;
 
-    ResultWindow (int queryChoice, String[] args) throws SQLException {
+    ResultWindow(int queryChoice, String[] args) throws SQLException {
 
+        if (queryChoice == 1) { // user chooses choice 1
 
-        if(queryChoice == 2) {
+        }
+        if (queryChoice == 2) { // user chooses choice 2
             query2(args);
+        }
+        if (queryChoice == 3) {
+
+        }
+        if (queryChoice == 4) {
+
+        }
+        if (queryChoice == 5) {
+
         }
         frame.add(panel1);
 
@@ -42,6 +53,7 @@ public class ResultWindow implements ActionListener {
     public void query2(String[] args) throws SQLException {
         String experience1 = args[0]; // extract variables to use in query
         String experience2 = args[1];
+
         int sqlCode = 0;      // Variable to hold SQLCODE
         String sqlState = "00000";  // Variable to hold SQLSTATE
 
@@ -51,7 +63,6 @@ public class ResultWindow implements ActionListener {
         } catch (Exception cnfe) {
             System.out.println("Class not found");
         }
-
         if (your_userid == null && (your_userid = System.getenv("SOCSUSER")) == null) {
             System.err.println("Error!! do not have a user id to connect to the database!");
             System.exit(1);
@@ -67,22 +78,32 @@ public class ResultWindow implements ActionListener {
         try {
             String querySQL = "SELECT \"User\".email FROM \"User\" " +
                     "WHERE EXISTS(SELECT 1 FROM Experience e " +
-                    "WHERE e.job_title = '"+experience1+"' AND e.email = \"User\".email " +
+                    "WHERE e.job_title = '" + experience1 + "' AND e.email = \"User\".email " +
                     "AND EXISTS(SELECT 1 FROM Experience e2 " +
-                    "WHERE e2.job_title = '"+experience2+"' AND e2.email = \"User\".email));";
+                    "WHERE e2.job_title = '" + experience2 + "' AND e2.email = \"User\".email));";
 
             System.out.println(querySQL);
             java.sql.ResultSet rs = statement.executeQuery(querySQL);
 
-            while (rs.next()) {
-                table1.setModel(model);
-                model.addColumn("email");
-                String user = rs.getString(1);
+            table1.setModel(model);
 
-                model.addRow(new Object[]{user});
-                System.out.println("user:  " + user);
+            if (!rs.next()) { // query returns nothing
+                model.addColumn("query returned nothing");
+
+            } else {
+                model.addColumn("email");   // add column name
+
+                // add entries to display table
+                do {
+                    String user = rs.getString(1);
+                    model.addRow(new Object[]{user});
+                    System.out.println("user:  " + user);
+                } while (rs.next());
+
+                System.out.println("DONE");
             }
-            System.out.println("DONE");
+
+
         } catch (SQLException e) {
             sqlCode = e.getErrorCode(); // Get SQLCODE
             sqlState = e.getSQLState(); // Get SQLSTATE
@@ -100,7 +121,7 @@ public class ResultWindow implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == returnToMenuButton) {
+        if (e.getSource() == returnToMenuButton) { // user presses return to menu button
             frame.dispose();
             ApplicationWindow mainWindow = new ApplicationWindow();
         }
