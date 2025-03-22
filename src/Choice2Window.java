@@ -35,9 +35,10 @@ public class Choice2Window implements ActionListener {
             expList[0] = e1TextField.getText(); // insert values from text fields into argument array
             expList[1] = e2textField.getText();
 
-            frame.dispose();
+
             try {
-                ResultWindow resultWindow = new ResultWindow(2, expList); // Open ResultWindow, invokes query 2 and passes arguments array
+                new ResultWindow(2, expList); // Open ResultWindow, invokes query 2 and passes arguments array
+                frame.dispose();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }

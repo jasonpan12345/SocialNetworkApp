@@ -34,7 +34,7 @@ public class ApplicationWindow implements ActionListener {
     public void actionPerformed(ActionEvent e) { // detects when user chooses an action
         if(e.getSource() == choice2Button) {
             frame.dispose();
-            Choice2Window form2 = new Choice2Window();
+            new Choice2Window();
         }
         if(e.getSource() == quitBtn) {
             System.exit(0);

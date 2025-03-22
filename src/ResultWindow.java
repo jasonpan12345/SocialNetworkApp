@@ -1,29 +1,49 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class ResultWindow {
+public class ResultWindow implements ActionListener {
+    JFrame frame = new JFrame();
+    DefaultTableModel model = new DefaultTableModel();
     private JPanel panel1;
     private JTable table1;
+    private JButton returnToMenuButton;
+
+    // This is the url you must use for DB2.
+    //Note: This url may not valid now ! Check for the correct year and semester and server name.
+    String url = "jdbc:db2://winter2025-comp421.cs.mcgill.ca:50000/comp421";
+
+    //REMEMBER to remove your user id and password before submitting your code!!
+    String your_userid = null;
+    String your_password = null;
 
     ResultWindow (int queryChoice, String[] args) throws SQLException {
-        if(queryChoice == 1) {
-            //query1(args);
+
+
+        if(queryChoice == 2) {
+            query2(args);
         }
+        frame.add(panel1);
+
+        frame.setTitle("Social network app");
+        frame.setSize(700, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null); // Center the frame on the screen
+        returnToMenuButton.addActionListener(this);
+
+        frame.setVisible(true);
     }
 
-    public void query1(String[] args) throws SQLException {
-        // Unique table names.  Either the user supplies a unique identifier as a command line argument, or the program makes one up.
-        String tableName = "";
+    public void query2(String[] args) throws SQLException {
+        String experience1 = args[0]; // extract variables to use in query
+        String experience2 = args[1];
         int sqlCode = 0;      // Variable to hold SQLCODE
         String sqlState = "00000";  // Variable to hold SQLSTATE
-
-        if (args.length > 0)
-            tableName += args[0];
-        else
-            tableName += "exampletbl";
 
         // Register the driver.  You must register the driver before you can use it.
         try {
@@ -32,17 +52,8 @@ public class ResultWindow {
             System.out.println("Class not found");
         }
 
-        // This is the url you must use for DB2.
-        //Note: This url may not valid now ! Check for the correct year and semester and server name.
-        String url = "jdbc:db2://winter2025-comp421.cs.mcgill.ca:50000/comp421";
-
-        //REMEMBER to remove your user id and password before submitting your code!!
-        String your_userid = null;
-        String your_password = null;
-        //AS AN ALTERNATIVE, you can just set your password in the shell environment in the Unix (as shown below) and read it from there.
-        //$  export SOCSPASSWD=yoursocspasswd
         if (your_userid == null && (your_userid = System.getenv("SOCSUSER")) == null) {
-            System.err.println("Error!! do not have a password to connect to the database!");
+            System.err.println("Error!! do not have a user id to connect to the database!");
             System.exit(1);
         }
         if (your_password == null && (your_password = System.getenv("SOCSPASSWD")) == null) {
@@ -52,82 +63,25 @@ public class ResultWindow {
         Connection con = DriverManager.getConnection(url, your_userid, your_password);
         Statement statement = con.createStatement();
 
-        // Creating a table
-        try {
-            String createSQL = "CREATE TABLE " + tableName + " (id INTEGER, name VARCHAR (25)) ";
-            System.out.println(createSQL);
-            statement.executeUpdate(createSQL);
-            System.out.println("DONE");
-        } catch (SQLException e) {
-            sqlCode = e.getErrorCode(); // Get SQLCODE
-            sqlState = e.getSQLState(); // Get SQLSTATE
-
-            // Your code to handle errors comes here;
-            // something more meaningful than a print would be good
-            System.out.println("Code: " + sqlCode + "  sqlState: " + sqlState);
-            System.out.println(e);
-        }
-
-        // Inserting Data into the table
-        try {
-            String insertSQL = "INSERT INTO " + tableName + " VALUES ( 1 , \'Vicki\' ) ";
-            System.out.println(insertSQL);
-            statement.executeUpdate(insertSQL);
-            System.out.println("DONE");
-
-            insertSQL = "INSERT INTO " + tableName + " VALUES ( 2 , \'Vera\' ) ";
-            System.out.println(insertSQL);
-            statement.executeUpdate(insertSQL);
-            System.out.println("DONE");
-            insertSQL = "INSERT INTO " + tableName + " VALUES ( 3 , \'Franca\' ) ";
-            System.out.println(insertSQL);
-            statement.executeUpdate(insertSQL);
-            System.out.println("DONE");
-
-        } catch (SQLException e) {
-            sqlCode = e.getErrorCode(); // Get SQLCODE
-            sqlState = e.getSQLState(); // Get SQLSTATE
-
-            // Your code to handle errors comes here;
-            // something more meaningful than a print would be good
-            System.out.println("Code: " + sqlCode + "  sqlState: " + sqlState);
-            System.out.println(e);
-        }
-
         // Querying a table
         try {
-            String querySQL = "SELECT id, name from " + tableName + " WHERE NAME = \'Vicki\'";
+            String querySQL = "SELECT \"User\".email FROM \"User\" " +
+                    "WHERE EXISTS(SELECT 1 FROM Experience e " +
+                    "WHERE e.job_title = '"+experience1+"' AND e.email = \"User\".email " +
+                    "AND EXISTS(SELECT 1 FROM Experience e2 " +
+                    "WHERE e2.job_title = '"+experience2+"' AND e2.email = \"User\".email));";
+
             System.out.println(querySQL);
             java.sql.ResultSet rs = statement.executeQuery(querySQL);
 
             while (rs.next()) {
-                int id = rs.getInt(1);
-                String name = rs.getString(2);
-                System.out.println("id:  " + id);
-                System.out.println("name:  " + name);
+                table1.setModel(model);
+                model.addColumn("email");
+                String user = rs.getString(1);
+
+                model.addRow(new Object[]{user});
+                System.out.println("user:  " + user);
             }
-            System.out.println("DONE");
-        } catch (SQLException e) {
-            sqlCode = e.getErrorCode(); // Get SQLCODE
-            sqlState = e.getSQLState(); // Get SQLSTATE
-
-            // Your code to handle errors comes here;
-            // something more meaningful than a print would be good
-            System.out.println("Code: " + sqlCode + "  sqlState: " + sqlState);
-            System.out.println(e);
-        }
-
-        //Updating a table
-        try {
-            String updateSQL = "UPDATE " + tableName + " SET NAME = \'Mimi\' WHERE id = 3";
-            System.out.println(updateSQL);
-            statement.executeUpdate(updateSQL);
-            System.out.println("DONE");
-
-            // Dropping a table
-            String dropSQL = "DROP TABLE " + tableName;
-            System.out.println(dropSQL);
-            statement.executeUpdate(dropSQL);
             System.out.println("DONE");
         } catch (SQLException e) {
             sqlCode = e.getErrorCode(); // Get SQLCODE
@@ -142,5 +96,13 @@ public class ResultWindow {
         // Finally but importantly close the statement and connection
         statement.close();
         con.close();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == returnToMenuButton) {
+            frame.dispose();
+            ApplicationWindow mainWindow = new ApplicationWindow();
+        }
     }
 }
