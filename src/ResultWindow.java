@@ -39,7 +39,6 @@ public class ResultWindow implements ActionListener {
             query4(args);
         }
         if (queryChoice == 5) {
-
             query5();
         }
         frame.add(panel1);

@@ -28,8 +28,6 @@ public class Choice4Window implements ActionListener {
 
     private void loadUniversityLocations() {
         DefaultListModel<String> model = new DefaultListModel<>();
-        int sqlCode = 0;
-        String sqlState = "00000";
 
         try {
             DriverManager.registerDriver(new com.ibm.db2.jcc.DB2Driver());
@@ -58,8 +56,6 @@ public class Choice4Window implements ActionListener {
             con.close();
 
         } catch (SQLException e) {
-            sqlCode = e.getErrorCode();
-            sqlState = e.getSQLState();
 
             JOptionPane.showMessageDialog(
                     frame,
